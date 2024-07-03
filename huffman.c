@@ -48,9 +48,6 @@ HNode* build_huffman_tree(Item arr[], size_t size) {
 		printf("Error: No valid entries to build queue\n");
 		exit(EXIT_FAILURE);
 	}
-	// printf("Number of non-zero entries: %u\n", count);
-
-	// printf(" %lu | %lu \n", sizeof(char)*count, sizeof(int)*count);
 
 	/* Allocate memory for parameters of Heap constructor */
 	char* items = malloc(sizeof(char) * (count));
@@ -59,9 +56,7 @@ HNode* build_huffman_tree(Item arr[], size_t size) {
 	/* Insert valid entries into arrays */
 	int idx = 0;
 	for (int i = 0; i < size; i++) {
-		// printf("Item %u | %u\n", i, arr[i].freq);
 		if (arr[i].freq != 0) {
-			// printf("valid\n");
 			items[idx] = arr[i].symbol;
 			freqs[idx++] = arr[i].freq;
 		}
@@ -71,10 +66,6 @@ HNode* build_huffman_tree(Item arr[], size_t size) {
 		/* Handle Error */
 		printf("Error: Imbalance in input and output arrays\n");
 	}
-
-	// for (int i = 0; i < count; i++) {
-	// 	printf(" %c | %u \n", items[i], freqs[i]);
-	// }
 
 	/* Create a priority queue using min-heap */
 	MinHeap* heap = generateHeap(items,freqs, count);
@@ -111,9 +102,6 @@ void set_code(Item items[], int arr[], int size, int idx) {
 }
 
 void huffman_codes(HNode* root, Item items[], int code[], int count) {
-	// printf("%c", root->item);
-	// printf("%u", count);
-
 	// NOTE: cannot use increment operator (++) here, creates
 	// double count len.... why? 
 	// can't revert increment recursively on stack trace?
@@ -130,46 +118,5 @@ void huffman_codes(HNode* root, Item items[], int code[], int count) {
 	if (isLeaf(root)) {
 		set_code(items, code, count, (int)root->item);
 		items[root->item].size = count;
-
-		// printf("  %c  | ", items[root->item].symbol);
-		// for (int i = 0; i < count; ++i) {
-		// 	printf("%u", items[root->item].code[i]);
-		// }
-		// printf("\n\n");
 	}
 }
-
-// void print_huffman_codes(HNode* root, int arr[], int curr) {
-// 	// printf("Start print...");
-// 	if (root->left) {
-// 		arr[curr] = 0;
-// 		print_huffman_codes(root->left, arr, curr+1);
-// 	}
-// 	if (root->right) {
-// 		arr[curr] = 1;
-// 		print_huffman_codes(root->right, arr, curr+1);
-// 	}
-// 	if (isLeaf(root)) {
-// 		if (root->item == 10) {
-// 			printf("  \\n | ");
-// 		} else if (root->item == 0) {
-// 			printf("  \\0 | ");
-// 		} else {
-// 			printf("  %c  | ", root->item);
-// 		}
-// 		// print_freq(arr, curr, 0);
-// 		for (int i = 0; i < curr; i++) {
-// 			if (i < curr-1) {
-// 				printf("%d", arr[i]);
-// 				if (0) {
-// 					printf(", ");
-// 				}
-// 			} else {
-// 				printf("%d\n", arr[i]);
-// 		}
-// 	}
-// 		return;
-// 	}
-// 	// printf("end print\n");
-// }
-//

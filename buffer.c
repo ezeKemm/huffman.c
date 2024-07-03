@@ -19,12 +19,11 @@ FILE* open_file(char* file, char* access) {
  * Fills buffer dynamically
  * Returns nothing							 */
 size_t read_from_file(FILE* fp_in, char** bufr) {
-	// size_t read_size = 0;
 	/* Seek to end of file */
 	if (fseek(fp_in, 0L, SEEK_END) == 0) {
 		/* Get file size */
 		long bufr_size = ftell(fp_in);
-		// printf("%lu\n", bufr_size);
+		printf("bufr size: %lu\n", bufr_size+1);
 		if (bufr_size == -1) {
 			/* Handle error */
 			printf("Error: Getting file size failed\n");
@@ -32,7 +31,9 @@ size_t read_from_file(FILE* fp_in, char** bufr) {
 		}
 
 		/* allocate bufr of file size to memory */
-		*bufr = malloc(sizeof(char) * (bufr_size + 1));
+		size_t msize = sizeof(char) * bufr_size;
+		// printf("msize: %lu", msize);
+		*bufr = malloc(sizeof(char) * (bufr_size+1));
 
 		/* Return cursor to file start */
 		if (fseek(fp_in, 0L, SEEK_SET) != 0) {
@@ -42,15 +43,17 @@ size_t read_from_file(FILE* fp_in, char** bufr) {
 		}
 
 		size_t read_size = fread(*bufr, sizeof(char), bufr_size, fp_in);
-		// printf("Size: %lu\n", read_size);
 		if (ferror(fp_in) != 0) {
 			/* Handle error */
-			fputs("Error: Reading file failed\n", stderr);
+			fputs("Error: Reading file failed\n", stdout);
 			exit(EXIT_FAILURE);
-		// } else {
+		} else {
+			// for (int i = 0; i < read_size; i++) {
+			// 	printf("%c", *bufr[i]);
+			// }
 		// FIX: segfaulting with "test" case but not "testing!" or longer case ...
-			//
-			// *bufr[++read_size] = '\0'; /* Null terminate string for safety */
+			// char eof = 254;
+			// *bufr[read_size++] = eof; /* Null terminate string for safety */
 		}
 		fclose(fp_in);		/* Close input file */
 		return read_size;

@@ -1,4 +1,5 @@
 #include "encoder.h"
+#include "buffer.h"
 #include <stdio.h>
 
 void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
@@ -7,18 +8,23 @@ void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
 	int k = 0;					/* bit counter */
 
 	/* calculate and store compressed file size */
-	for (i = 0; i < 256; i++)	
-		if (items[i].freq)		
-			out_size += (items[i].freq * items[i].size);	
-
-	// TODO: include frequency table for decoding
+	/* store frequency table in file header		*/
+	for (i = 0; i < 256; i++) {	
+		if (items[i].freq) {
+			out_size += (items[i].freq * items[i].size);
+			fprintf(fp_out, "%c%u ", i, items[i].freq);
+		}
+	}
+	// printf("%u", out_size);
+	fprintf(fp_out, "\n");
+	// fprintf(fp_out, "%c\n", 254);	/* pseudo-EOF */
 	
 	// fprintf(fp_out, "%c", 'a');
 	// fprintf(fp_out, "%04d\n", out_size);	// write file size to file  // TODO: keep?
-	// fprintf(fp_out, "%c\n", (char)4);		// ASCII: Start-of-Text character
+	// fprintf(fp_out, "%c\n", (char)2);		// ASCII: Start-of-Text character
 	
 	// TODO: make output a buffer stream
-	
+
 	int size_actual = 0;
 	/* encode input data into compressed file stream */
 	for (i = 0; i < size_in; i++) {
@@ -45,7 +51,7 @@ void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
 	}
 	/* partially filled cbuf at input stream end is already
 	 * padded, simply write to output stream	*/
-	fprintf(fp_out, "%c", cbuf);
+	fprintf(fp_out, "%u", cbuf);
 	fprintf(fp_out, "%c", '\n');	/* terminate file */
 	// PERF: any reason to use fputc instead here?
 }

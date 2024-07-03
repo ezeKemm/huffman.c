@@ -8,7 +8,7 @@
 
 #define MAX_DEPTH 50
 #define TABLE_SIZE 256
-#define PEOF 126
+#define PEOF 127
 
 // TODO: Error handling that isn't shutdown
 
@@ -47,19 +47,45 @@ static void print_huff_codes(HNode* root, int arr[], int top) {
 }
 
 int main() {
-
-	FILE *fp_in, *fp_out;
-	Item items[256] = {{0}};
 	printf("Starting program ... \n");
-	fp_in = open_file("test.txt", "r");
+	FILE *fp_in, *fp_out;
+	Item items[TABLE_SIZE] = {{0}};
 	char* buffer = NULL;
+	fp_in = open_file("test.txt", "r");
 	int read = read_from_file(fp_in, &buffer);
+	// buffer[read++] = PEOF;		/* insert pseudo-EOF into huffman tree */
+	// HACK: track frequency of PEOF char in file ahead of time
+	// n-1 occurrence is encoded and nth occurrence is EOF
 
 	int code[MAX_DEPTH];
 	int count = 0;
+	int ceof = 0;
+	HNode* root;
 	get_freqs(buffer, items, read);
-	HNode* root = build_huffman_tree(items, TABLE_SIZE);
-	huffman_codes(root, items, code, count);
+
+	// WARN: bc i can't be bothered to figure out why non-printable chars past 127 
+	// don't actually to my knowledge work and are implicitly cast to negative 
+	// integers, thank you gcc
+	if (items[PEOF].freq) {
+		printf("PEOF is a valid character\n");
+		/* If PEOF already in file as valid character,
+		 * store the frequency and build huffman
+		 * code using pre-appended frequency */
+		ceof = items[PEOF].freq;
+		root = build_huffman_tree(items, TABLE_SIZE);
+		huffman_codes(root, items, code, count);
+	} else {
+		printf("PEOF is not a valid character\n");
+		/* else, insert PEOF into table to generate code */
+		items[PEOF].freq++;
+		items[PEOF].symbol = PEOF;
+		root = build_huffman_tree(items, TABLE_SIZE);
+		huffman_codes(root, items, code, count);
+	}
+	buffer[read++] = PEOF;		/* append stream w/ pseudo-EOF */
+
+	int printable[MAX_DEPTH];
+	print_huff_codes(root, printable, 0);
 
 	fp_out = open_file("test.txt.huffman", "w");
 	// get_fp_out(fp_out, "test.txt", "w");
