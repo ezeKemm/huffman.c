@@ -63,9 +63,9 @@ int main() {
 	HNode* root;
 	get_freqs(buffer, items, read);
 
-	// WARN: bc i can't be bothered to figure out why non-printable chars past 127 
+	// WARN: bc i can't be bothered to figure out how/why non-printable chars past 127 
 	// don't actually to my knowledge work and are implicitly cast to negative 
-	// integers, thank you gcc
+	// integers; despite the architecture shouldn't do this? thank you gcc
 	if (items[PEOF].freq) {
 		printf("PEOF is a valid character\n");
 		/* If PEOF already in file as valid character,
@@ -74,14 +74,17 @@ int main() {
 		ceof = items[PEOF].freq;
 		root = build_huffman_tree(items, TABLE_SIZE);
 		huffman_codes(root, items, code, count);
+		items[PEOF].freq++;
 	} else {
-		printf("PEOF is not a valid character\n");
+		printf("PEOF is not a valid character...adding to tree\n");
 		/* else, insert PEOF into table to generate code */
 		items[PEOF].freq++;
 		items[PEOF].symbol = PEOF;
+		items[PEOF].peof++;		/* update PEOF flag */
 		root = build_huffman_tree(items, TABLE_SIZE);
 		huffman_codes(root, items, code, count);
 	}
+	items[PEOF].peof++;		/* set PEOF flag */
 	buffer[read++] = PEOF;		/* append stream w/ pseudo-EOF */
 
 	int printable[MAX_DEPTH];

@@ -5,6 +5,6 @@
 #include <stdio.h>
 #include "huffman.h"
 
-void encode(Item items[], char* buf_in, FILE* fp_out, int size_in);
+void encode(Item items[], char* buf_in, FILE* fp_out, int size_in, int ceof);
 
  #endif

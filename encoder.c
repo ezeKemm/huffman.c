@@ -1,8 +1,7 @@
 #include "encoder.h"
-#include "buffer.h"
 #include <stdio.h>
 
-void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
+void encode(Item items[], char* buf_in, FILE* fp_out, int size_in, int ceof) {
 	unsigned char cbuf = '\0';	/* character buffer */
 	int i, out_size = 0;		/* stream counter, output size */ 
 	int k = 0;					/* bit counter */
@@ -12,6 +11,10 @@ void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
 	for (i = 0; i < 256; i++) {	
 		if (items[i].freq) {
 			out_size += (items[i].freq * items[i].size);
+			if (items[i].peof) {
+				/* specially designate the pseudo-eof in our header */
+				fprintf(fp_out, "%c%u ", i, items[i].freq);
+			}
 			fprintf(fp_out, "%c%u ", i, items[i].freq);
 		}
 	}
@@ -51,7 +54,7 @@ void encode(Item items[], char* buf_in, FILE* fp_out, int size_in) {
 	}
 	/* partially filled cbuf at input stream end is already
 	 * padded, simply write to output stream	*/
-	fprintf(fp_out, "%u", cbuf);
+	fprintf(fp_out, "%c", cbuf);
 	fprintf(fp_out, "%c", '\n');	/* terminate file */
 	// PERF: any reason to use fputc instead here?
 }

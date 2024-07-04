@@ -20,6 +20,7 @@ typedef struct {
 	int freq;
 	int size;
 	int code[MAX_DEPTH];
+	int peof;
 } Item;
 
 /* Utility Functions */
